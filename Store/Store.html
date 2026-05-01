@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Strange World | Secure Vault & DRM</title>
+    
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        body { background-color: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; overflow: hidden; }
+
+        #auth-system {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(25px);
+        }
+        .auth-card {
+            width: 460px; padding: 45px; background: #080808;
+            border: 2px solid var(--orange); border-radius: 35px; text-align: center;
+        }
+        .hidden { display: none !important; }
+        
+        input {
+            width: 100%; padding: 15px; margin: 10px 0; background: #111;
+            border: 1px solid #333; color: white; border-radius: 12px; outline: none; text-align: center;
+        }
+        .btn-action {
+            width: 100%; padding: 16px; background: var(--orange); border: none;
+            color: white; font-family: 'Lilita One'; font-size: 1.3rem;
+            border-radius: 12px; transition: 0.3s; margin-top: 10px; cursor: pointer;
+        }
+        .btn-action:hover { background: white; color: var(--orange); transform: scale(1.03); }
+        .link { color: var(--cyan); display: block; margin-top: 15px; cursor: pointer; font-size: 0.9rem; }
+        
+        /* Estilo para el input del código */
+        .otp-input { border: 2px dashed var(--cyan); font-size: 1.5rem; letter-spacing: 5px; color: var(--cyan); }
+
+        #vault-ui { opacity: 0; filter: blur(30px); transition: 1.2s; padding: 40px 8%; }
+        .unlocked { opacity: 1 !important; filter: blur(0) !important; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-system">
+        <!-- LOGIN PRINCIPAL -->
+        <div id="view-start" class="auth-card">
+            <h2 style="font-family:'Lilita One'; font-size: 2.8rem; color: var(--orange);">IDENTITY</h2>
+            <input type="text" id="id-input" placeholder="Username or Email">
+            <button class="btn-action" onclick="goToPassword()">CONTINUE</button>
+            <div style="margin: 20px 0; color: #333;">OR</div>
+            <div id="g_id_onload" data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com" data-callback="handleGoogle"></div>
+            <div class="g_id_signin" data-type="standard" data-theme="filled_black"></div>
+            <span class="link" onclick="switchView('view-reg')">Register Account</span>
+        </div>
+
+        <!-- PASSWORD -->
+        <div id="view-pass" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One'; color: var(--cyan);">PASSWORD</h2>
+            <p id="target-display" style="color: #666; margin-bottom: 10px;"></p>
+            <input type="password" id="pass-field" placeholder="••••••••">
+            <button class="btn-action" onclick="finalizeLogin()">ENTER VAULT</button>
+            <span class="link" onclick="switchView('view-start')">Back</span>
+        </div>
+
+        <!-- REGISTRO CON VERIFICACIÓN DINÁMICA -->
+        <div id="view-reg" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One';">SIGN UP</h2>
+            <div id="reg-form">
+                <input type="text" id="reg-user" placeholder="Username">
+                <input type="email" id="reg-mail" placeholder="Email">
+                <button class="btn-action" id="btn-send-reg" onclick="sendAuthEmail('reg-mail', 'Registration', 'reg-verify', 'btn-send-reg')">SEND CODE</button>
+            </div>
+            
+            <!-- Este campo aparece solo después de enviar el correo -->
+            <div id="reg-verify" class="hidden">
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">Enter the 6-digit code sent to your email</p>
+                <input type="text" id="reg-otp" class="otp-input" placeholder="000000" maxlength="6">
+                <button class="btn-action" style="background: var(--cyan); color: #000;" onclick="verifyOTP('reg-otp', 'reg-user')">VERIFY & CREATE</button>
+            </div>
+            <span class="link" onclick="switchView('view-start')">Back to Login</span>
+        </div>
+    </div>
+
+    <main id="vault-ui">
+        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--orange); padding-bottom: 20px;">
+            <h1 style="font-family:'Lilita One';">THE VAULT</h1>
+            <div style="display:flex; align-items:center; gap:20px;">
+                <span id="user-display" style="font-family:'Lilita One'; color: var(--cyan);"></span>
+                <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#fff; padding:5px 15px; border-radius:10px; cursor:pointer;">LOGOUT</button>
+            </div>
+        </header>
+
+        <div style="margin-top: 50px; text-align: center;">
+            <div style="background: #0a0a0a; padding: 35px; border-radius: 30px; border: 1px solid #222; display: inline-block; width: 350px;">
+                <h3 style="font-family:'Lilita One'; font-size: 1.8rem;">SHADOW HOPE</h3>
+                <div id="action-area" style="margin-top: 20px;">
+                    <button class="btn-action" onclick="claimGame()">CLAIM ACCESS</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function() { 
+            emailjs.init("3XgvL4XF6IdEb6r-W"); 
+        })();
+
+        let generatedOTP = null;
+        const deviceFingerprint = btoa(navigator.userAgent + screen.width).substring(10, 25);
+
+        function switchView(id) {
+            document.querySelectorAll('.auth-card').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function goToPassword() {
+            const val = document.getElementById('id-input').value;
+            if(!val) return alert("Enter credentials");
+            document.getElementById('target-display').innerText = val;
+            switchView('view-pass');
+        }
+
+        // --- ENVÍO DE CORREO Y CAMBIO DE INTERFAZ ---
+        function sendAuthEmail(emailId, type, verifyDivId, btnId) {
+            const email = document.getElementById(emailId).value;
+            if(!email) return alert("Email required");
+
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+            const params = {
+                to_email: email,
+                message_type: type,
+                verification_code: generatedOTP // Esto debe estar en tu Template de EmailJS
+            };
+
+            const btn = document.getElementById(btnId);
+            btn.innerText = "SENDING...";
+            btn.disabled = true;
+
+            emailjs.send("service_n5upbn5", "template_9zecuia", params)
+                .then(() => {
+                    // Ocultar botón de envío y mostrar campo de verificación
+                    btn.classList.add('hidden');
+                    document.getElementById(verifyDivId).classList.remove('hidden');
+                }, (err) => {
+                    alert("Error: " + JSON.stringify(err));
+                    btn.disabled = false;
+                    btn.innerText = "RETRY SEND";
+                });
+        }
+
+        // --- VERIFICACIÓN DEL CÓDIGO ---
+        function verifyOTP(otpInputId, usernameId) {
+            const userOTP = document.getElementById(otpInputId).value;
+            if(userOTP === generatedOTP) {
+                alert("IDENTITY VERIFIED");
+                const userName = document.getElementById(usernameId).value || "New Survivor";
+                unlockVault(userName);
+            } else {
+                alert("INVALID CODE. Try again.");
+            }
+        }
+
+        function finalizeLogin() {
+            unlockVault(document.getElementById('id-input').value || "Survivor");
+        }
+
+        function handleGoogle(resp) {
+            const data = JSON.parse(atob(resp.credential.split('.')[1]));
+            unlockVault(data.given_name);
+        }
+
+        function unlockVault(name) {
+            document.getElementById('auth-system').style.display = 'none';
+            document.getElementById('vault-ui').classList.add('unlocked');
+            document.getElementById('user-display').innerText = name.toUpperCase();
+            document.body.style.overflow = 'auto';
+        }
+
+        function claimGame() {
+            alert("LICENSE TIED TO THIS DEVICE.");
+            document.getElementById('action-area').innerHTML = `<span style="color:var(--cyan)">ACCESS GRANTED</span>`;
+        }
+    </script>
+</body>
+</html>
