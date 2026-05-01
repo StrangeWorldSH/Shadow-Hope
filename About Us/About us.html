@@ -1,1 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About Us | Strange World Studio</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+    
+    <!-- Fonts (Euphoric Style) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
 
+    <style>
+        :root {
+            --orange: #ff4500;
+            --cyan: #00e5ff;
+            --dark: #020202;
+            --card-bg: rgba(15, 15, 15, 0.98);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        
+        body {
+            background-color: var(--dark);
+            color: #ffffff;
+            font-family: 'Rubik', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- FONDO DINÁMICO DE CENIZAS (SIN IMÁGENES EXTERNAS) --- */
+        #ash-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1a0a00 0%, #020202 100%);
+        }
+
+        /* Capa de ruido sutil generada por CSS */
+        .grain {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.03; pointer-events: none; z-index: 100;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- NAVEGACIÓN --- */
+        header {
+            padding: 25px 8%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.95);
+            border-bottom: 5px solid var(--orange);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo-text {
+            font-family: 'Lilita One', cursive;
+            font-size: 2.2rem; text-shadow: 4px 4px 0 var(--orange);
+            letter-spacing: 2px;
+        }
+
+        nav a {
+            font-family: 'Lilita One', cursive;
+            color: #fff; text-decoration: none; margin-left: 30px;
+            font-size: 1.1rem; text-transform: uppercase; transition: 0.3s;
+        }
+
+        nav a:hover, .active { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+
+        /* --- CONTENIDO --- */
+        .main-content {
+            padding: 80px 10%; max-width: 1400px; margin: 0 auto;
+            position: relative; z-index: 10;
+        }
+
+        .about-header { text-align: center; margin-bottom: 80px; }
+        .about-header h1 {
+            font-family: 'Lilita One', cursive;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            text-shadow: 8px 8px 0 var(--orange);
+        }
+
+        /* Bloques de Texto de Alto Impacto */
+        .story-block {
+            background: var(--card-bg);
+            padding: 60px; border-radius: 40px;
+            border: 2px solid #252525; margin-bottom: 50px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            transition: 0.3s;
+        }
+
+        .story-block:hover { border-color: var(--orange); }
+
+        .story-block h2 {
+            font-family: 'Lilita One', cursive;
+            font-size: 3.5rem; color: var(--orange); margin-bottom: 30px;
+        }
+
+        .story-block p {
+            font-size: 1.3rem; line-height: 1.8; color: #ccc;
+            margin-bottom: 25px; font-weight: 300;
+        }
+
+        /* Columnas de Filosofía */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px; margin-top: 60px;
+        }
+
+        .stat-card {
+            background: #111; padding: 45px; border-radius: 30px;
+            border-bottom: 8px solid var(--cyan); transition: 0.4s;
+        }
+
+        .stat-card:hover { transform: translateY(-10px); border-bottom-color: var(--orange); }
+
+        .stat-card h3 {
+            font-family: 'Lilita One', cursive;
+            font-size: 2rem; margin-bottom: 15px; color: white;
+        }
+
+        footer {
+            padding: 80px 10% 40px; text-align: center;
+            background: #000; border-top: 2px solid #111;
+        }
+
+        .footer-logo { font-family: 'Lilita One', cursive; font-size: 1.8rem; color: #333; }
+
+        audio { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Audio System (Targeting your local files) -->
+    <audio id="sfx_select"><source src="select.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx_press"><source src="press.mp3" type="audio/mpeg"></audio>
+
+    <div class="grain"></div>
+    <canvas id="ash-canvas"></canvas>
+
+    <header>
+        <div class="logo-text">STRANGE WORLD</div>
+        <nav>
+            <a href="C:\Users\Carlos\Desktop\Paginas Webs\Pagina Shadow Hope\Home\index.html" class="sfx-hover">Home</a>
+            <a href="C:\Users\Carlos\Desktop\Paginas Webs\Pagina Shadow Hope\About Us\index.html class="active sfx-hover">About Us</a>
+            <a href="community.html" class="sfx-hover">Community</a>
+            <a href="store.html" class="sfx-hover">Store</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="about-header">
+            <h1>BEHIND THE VOID</h1>
+        </section>
+
+        <section class="story-block sfx-hover">
+            <h2>THE GENESIS</h2>
+            <p>
+                Born in the heart of 2026, **Strange World Studio** was established with a singular, dark purpose: to craft digital experiences that don't just entertain, but linger in the back of your mind long after the screen goes black.
+            </p>
+            <p>
+                We are a small team of rebels. We rejected the polished, predictable nature of corporate horror to return to the roots of the genre: **Atmosphere, Vulnerability, and the Unknown.**
+            </p>
+        </section>
+
+        <div class="stats-grid">
+            <div class="stat-card sfx-hover">
+                <h3>ADAPTIVE AI</h3>
+                <p>Our entities don't just follow scripts. They react to your heart rate, your movement, and your panic levels.</p>
+            </div>
+            <div class="stat-card sfx-hover">
+                <h3>SONIC DREAD</h3>
+                <p>We use binaural audio recording to ensure that every floorboard creak feels like it's happening right behind your chair.</p>
+            </div>
+            <div class="stat-card sfx-hover">
+                <h3>TRUE INDIE</h3>
+                <p>100% self-funded. 100% creative freedom. We answer only to the shadows and our community.</p>
+            </div>
+        </div>
+
+        <section class="story-block sfx-hover" style="margin-top: 60px;">
+            <h2>THE PHILOSOPHY</h2>
+            <p>
+                At Strange World, we believe horror is a conversation between the developer and the player's subconscious. Our "Void Engine" is designed to be unpredictable, ensuring that no two walkthroughs are ever truly identical.
+            </p>
+            <p>
+                When you play a Strange World title, you aren't just playing a game—you are entering a simulated nightmare where the rules are constantly shifting.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-logo">STRANGE WORLD STUDIO // 2026</div>
+        <p style="color: #222; margin-top: 15px; font-weight: bold; letter-spacing: 5px;">DONT LOOK BACK</p>
+    </footer>
+
+    <script>
+        // --- NEW CANVAS ASH SYSTEM (NO IMAGES) ---
+        const canvas = document.getElementById('ash-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.2;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.4;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 69, 0, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < 120; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        init(); animate();
+
+        // --- AUDIO ENGINE ---
+        const audioS = document.getElementById('sfx_select');
+        const audioP = document.getElementById('sfx_press');
+        function playS(a) { a.currentTime = 0; a.play().catch(()=>{}); }
+
+        document.querySelectorAll('.sfx-hover').forEach(el => {
+            el.addEventListener('mouseenter', () => playS(audioS));
+            el.addEventListener('mousedown', () => playS(audioP));
+        });
+    </script>
+</body>
+</html>
