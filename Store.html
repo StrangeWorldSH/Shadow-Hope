@@ -3,161 +3,174 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Store | Strange World</title>
+    <title>Terminal Access | Strange World</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
-    
-    <!-- Fonts & Google Identity -->
     <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+    
+    <!-- SDKs: Google & EmailJS -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        :root {
-            --orange: #ff4500;
-            --cyan: #00e5ff;
-            --dark: #020202;
-            --card: #0a0a0a;
-        }
-
+        :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
-        
-        body {
-            background-color: var(--dark);
-            color: #ffffff;
-            font-family: 'Rubik', sans-serif;
-            overflow-x: hidden;
-        }
+        body { background: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; overflow-x: hidden; }
 
-        /* --- NAVIGATION --- */
         header {
             padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.98); border-bottom: 4px solid var(--orange);
-            position: sticky; top: 0; z-index: 1000;
+            background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000;
         }
+        .logo { font-family: 'Lilita One'; font-size: 2rem; text-shadow: 2px 2px var(--orange); }
+        nav a { font-family: 'Lilita One'; color: #fff; text-decoration: none; margin-left: 25px; transition: 0.3s; }
+        nav a:hover { color: var(--cyan); }
 
-        .logo-text { font-family: 'Lilita One', cursive; font-size: 2rem; text-shadow: 3px 3px 0 var(--orange); }
+        .auth-wrapper { max-width: 450px; margin: 60px auto; padding: 40px; background: #0a0a0a; border-radius: 25px; border: 1px solid #1a1a1a; box-shadow: 0 15px 50px rgba(0,0,0,0.9); }
+        h2 { font-family: 'Lilita One'; font-size: 2.2rem; color: var(--orange); margin-bottom: 25px; text-align: center; }
 
-        nav a {
-            font-family: 'Lilita One', cursive; color: #fff; text-decoration: none;
-            margin-left: 25px; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s;
-        }
-        nav a:hover, .active { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+        .input-group { margin-bottom: 20px; position: relative; }
+        input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
 
-        /* --- STORE CONTENT --- */
-        .container { padding: 60px 8%; max-width: 1200px; margin: 0 auto; }
+        .btn { width: 100%; padding: 15px; background: var(--orange); border: none; border-radius: 12px; font-family: 'Lilita One'; color: #fff; font-size: 1.2rem; box-shadow: 0 5px 0 #9e2b00; transition: 0.2s; }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #9e2b00; }
 
-        .store-header { text-align: center; margin-bottom: 60px; }
-        .store-header h1 { font-family: 'Lilita One', cursive; font-size: 4rem; text-shadow: 6px 6px 0 var(--orange); }
+        .alt-auth { margin-top: 25px; padding-top: 20px; border-top: 1px solid #222; text-align: center; }
+        .link { color: var(--cyan); font-size: 0.85rem; text-decoration: none; display: block; margin: 10px 0; }
 
-        /* Auth Section */
-        .auth-box {
-            background: var(--card); border: 2px solid #222; padding: 20px;
-            border-radius: 20px; display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 40px;
-        }
-
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .user-info img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--cyan); }
-
-        /* Products Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-
-        .item-card {
-            background: var(--card); border: 2px solid #1a1a1a; border-radius: 30px;
-            padding: 30px; transition: 0.3s; position: relative; overflow: hidden;
-        }
-        .item-card:hover { border-color: var(--cyan); transform: translateY(-5px); }
-
-        .item-card h2 { font-family: 'Lilita One'; font-size: 2rem; margin-bottom: 10px; }
-        .price { color: var(--orange); font-family: 'Lilita One'; font-size: 1.5rem; margin-bottom: 20px; display: block; }
+        /* Pantallas */
+        #otpScreen, #storeContent, #recoveryScreen { display: none; }
         
-        .buy-btn {
-            display: block; width: 100%; padding: 15px; background: var(--orange);
-            color: white; border: none; border-radius: 12px; font-family: 'Lilita One';
-            font-size: 1.2rem; text-decoration: none; text-align: center; transition: 0.2s;
-            box-shadow: 0 4px 0 #9e2b00;
-        }
-        .buy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #9e2b00; }
-
-        footer { padding: 40px; text-align: center; opacity: 0.1; font-family: 'Lilita One'; }
+        .badge { background: rgba(0, 229, 255, 0.1); color: var(--cyan); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; margin-bottom: 10px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-text">STRANGE WORLD</div>
+        <div class="logo">STRANGE WORLD</div>
         <nav>
             <a href="index.html">Home</a>
             <a href="AboutUs.html">About Us</a>
             <a href="Community.html">Community</a>
-            <a href="Store.html" class="active">Store</a>
+            <a href="Store.html" style="color: var(--cyan)">Store</a>
         </nav>
     </header>
 
-    <main class="container">
-        <section class="store-header">
-            <h1>SUPPLY DEPOT</h1>
-            <p style="color: var(--cyan); font-weight: bold; letter-spacing: 3px;">EQUIP YOURSELF FOR THE VOID</p>
-        </section>
-
-        <!-- Google Login Box -->
-        <div class="auth-box">
-            <div id="userProfile" class="user-info">
-                <span style="color: #555;">Survivor not identified...</span>
+    <div class="container">
+        <!-- PANTALLA 1: LOGIN / REGISTRO -->
+        <div id="loginScreen" class="auth-wrapper">
+            <h2>SURVIVOR LOGIN</h2>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Email Address">
             </div>
-            <div id="g_id_onload"
-                 data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com"
-                 data-callback="handleGoogle"
-                 data-auto_prompt="false">
+            <div class="input-group">
+                <input type="password" id="passInput" placeholder="Password">
             </div>
-            <div class="g_id_signin" data-type="standard"></div>
-        </div>
-
-        <div class="grid">
-            <!-- Shadow Hope I Card -->
-            <div class="item-card">
-                <div style="background: #111; height: 180px; border-radius: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; border: 1px dashed #333;">
-                    <span style="font-family: 'Lilita One'; color: #222; font-size: 3rem;">SH1</span>
-                </div>
-                <h2>SHADOW HOPE I</h2>
-                <span class="price">FREE / DOWNLOAD</span>
-                <p style="color: #888; margin-bottom: 20px; font-size: 0.9rem;">The beginning of the saga. Released April 28, 2026. Explore the first nightmare.</p>
-                <!-- Enlace de descarga directo actualizado -->
-                <a href="https://github.com/StrangeWorldSH/Shadow-Hope/releases/download/1.0/Shadow_Hope_I_Setup.exe" class="buy-btn">DOWNLOAD SETUP</a>
-            </div>
-
-            <!-- Future Content Placeholder -->
-            <div class="item-card" style="opacity: 0.5;">
-                <div style="background: #111; height: 180px; border-radius: 20px; margin-bottom: 20px;"></div>
-                <h2>EXPANSION PACK</h2>
-                <span class="price">LOCKED</span>
-                <p style="color: #888; margin-bottom: 20px; font-size: 0.9rem;">Content currently encrypted. Join our Discord for decryption codes.</p>
-                <button class="buy-btn" style="background: #333; box-shadow: none;">UNAVAILABLE</button>
+            <button class="btn" onclick="initiateAuth()">LOG IN / REGISTER</button>
+            
+            <div class="alt-auth">
+                <a href="#" class="link" onclick="showScreen('recoveryScreen')">Forgot password?</a>
+                <div id="g_id_onload" data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com" data-callback="handleGoogle"></div>
+                <div class="g_id_signin" data-type="standard"></div>
             </div>
         </div>
-    </main>
 
-    <footer>STRANGE WORLD STUDIO // 2026</footer>
+        <!-- PANTALLA 2: VERIFICACIÓN OTP (EMAILJS) -->
+        <div id="otpScreen" class="auth-wrapper">
+            <span class="badge">SECURITY CHECK</span>
+            <h2>ENTER CODE</h2>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px; text-align: center;">We sent a verification code to your email via EmailJS.</p>
+            <div class="input-group">
+                <input type="text" id="otpInput" placeholder="6-Digit Code" maxlength="6" style="text-align: center; font-size: 2rem; letter-spacing: 5px;">
+            </div>
+            <button class="btn" onclick="verifyOTP()">VERIFY ACCESS</button>
+            <a href="#" class="link" onclick="showScreen('loginScreen')">Back to Login</a>
+        </div>
+
+        <!-- PANTALLA 3: RECUPERACIÓN -->
+        <div id="recoveryScreen" class="auth-wrapper">
+            <h2>RECOVER ACCOUNT</h2>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px; text-align: center;">Enter your email to receive a temporary access code.</p>
+            <div class="input-group">
+                <input type="email" id="recoverEmail" placeholder="Your Registered Email">
+            </div>
+            <button class="btn" onclick="initiateAuth('recovery')">SEND RESET CODE</button>
+            <a href="#" class="link" onclick="showScreen('loginScreen')">Wait, I remember it!</a>
+        </div>
+
+        <!-- PANTALLA 4: TIENDA DESBLOQUEADA -->
+        <div id="storeContent" class="auth-wrapper" style="max-width: 700px;">
+            <div class="badge">AUTHORIZED ACCESS</div>
+            <h2 style="text-align: left;">SHADOW HOPE I: DOWNLOAD</h2>
+            <div style="background: #000; padding: 25px; border-radius: 15px; border: 1px dashed var(--cyan); margin-top: 20px;">
+                <p style="color: #bbb; margin-bottom: 20px;">Acceso concedido para la versión estable del instalador (Setup.exe). Compatible con Windows 10 LTSC.</p>
+                <a href="https://github.com/StrangeWorldSH/Shadow-Hope/releases/download/1.0/Shadow_Hope_I_Setup.exe" class="btn" style="text-decoration: none; display: block; text-align: center;">DOWNLOAD NOW</a>
+            </div>
+            <a href="#" class="link" onclick="logout()" style="margin-top: 20px; text-align: center;">Sign Out</a>
+        </div>
+    </div>
 
     <script>
-        function handleGoogle(response) {
-            const data = parseJwt(response.credential);
-            const profile = document.getElementById('userProfile');
-            profile.innerHTML = `
-                <img src="${data.picture}" alt="Profile">
-                <div>
-                    <strong style="color: var(--cyan); display: block;">${data.name.toUpperCase()}</strong>
-                    <span style="font-size: 0.7rem; color: #555;">ID: ${data.sub.substring(0,8)}...</span>
-                </div>
-            `;
-            console.log("Survivor Identified: " + data.name);
+        // Inicialización de EmailJS
+        (function() { emailjs.init("TU_PUBLIC_KEY"); })();
+
+        let currentOTP = null;
+        let userEmail = "";
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.auth-wrapper').forEach(s => s.style.display = 'none');
+            document.getElementById(screenId).style.display = 'block';
         }
 
-        function parseJwt(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(window.atob(base64));
+        function initiateAuth(mode = 'login') {
+            userEmail = mode === 'recovery' ? document.getElementById('recoverEmail').value : document.getElementById('emailInput').value;
+            
+            if (!userEmail.includes('@')) return alert("Please enter a valid email.");
+
+            // Generar código de 6 dígitos
+            currentOTP = Math.floor(100000 + Math.random() * 900000);
+            
+            // Parámetros para tu plantilla de EmailJS
+            const templateParams = {
+                to_email: userEmail,
+                otp_code: currentOTP,
+                project: "Shadow Hope"
+            };
+
+            emailjs.send('TU_SERVICE_ID', 'TU_TEMPLATE_ID', templateParams)
+                .then(() => {
+                    alert("Verification code sent!");
+                    showScreen('otpScreen');
+                })
+                .catch(err => {
+                    console.error("EmailJS Error:", err);
+                    alert("Failed to send email. Check your EmailJS configuration.");
+                });
         }
+
+        function verifyOTP() {
+            const input = document.getElementById('otpInput').value;
+            if (input == currentOTP) {
+                localStorage.setItem('sh_auth', 'true');
+                showScreen('storeContent');
+            } else {
+                alert("Incorrect code. Please try again.");
+            }
+        }
+
+        function handleGoogle(response) {
+            // El login de Google salta el OTP por ser proveedor confiable
+            localStorage.setItem('sh_auth', 'true');
+            showScreen('storeContent');
+        }
+
+        function logout() {
+            localStorage.removeItem('sh_auth');
+            location.reload();
+        }
+
+        // Persistencia de sesión
+        if(localStorage.getItem('sh_auth')) showScreen('storeContent');
     </script>
 </body>
 </html>
