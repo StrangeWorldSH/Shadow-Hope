@@ -21,26 +21,21 @@
             z-index: 9999; display: flex; justify-content: center; align-items: center;
             backdrop-filter: blur(25px);
         }
-        .auth-card {
-            width: 460px; padding: 45px; background: #080808;
-            border: 2px solid var(--orange); border-radius: 35px; text-align: center;
-        }
+        .auth-card { width: 460px; padding: 45px; background: #080808; border: 2px solid var(--orange); border-radius: 35px; text-align: center; position: relative; }
         .hidden { display: none !important; }
         
-        input {
-            width: 100%; padding: 15px; margin: 10px 0; background: #111;
-            border: 1px solid #333; color: white; border-radius: 12px; outline: none; text-align: center;
-        }
-        .btn-action {
-            width: 100%; padding: 16px; background: var(--orange); border: none;
-            color: white; font-family: 'Lilita One'; font-size: 1.3rem;
-            border-radius: 12px; transition: 0.3s; margin-top: 10px; cursor: pointer;
-        }
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #111; border: 1px solid #333; color: white; border-radius: 12px; outline: none; text-align: center; font-family: 'Rubik'; }
+        .btn-action { width: 100%; padding: 16px; background: var(--orange); border: none; color: white; font-family: 'Lilita One'; font-size: 1.3rem; border-radius: 12px; transition: 0.3s; margin-top: 10px; cursor: pointer; }
         .btn-action:hover { background: white; color: var(--orange); transform: scale(1.03); }
-        .link { color: var(--cyan); display: block; margin-top: 15px; cursor: pointer; font-size: 0.9rem; }
-        
-        /* Estilo para el input del código */
-        .otp-input { border: 2px dashed var(--cyan); font-size: 1.5rem; letter-spacing: 5px; color: var(--cyan); }
+        .link { color: var(--cyan); display: block; margin-top: 15px; cursor: pointer; font-size: 0.9rem; opacity: 0.7; }
+        .link:hover { opacity: 1; text-decoration: underline; }
+
+        /* MENU KEBAB */
+        .kebab-menu { position: relative; cursor: pointer; padding: 10px; }
+        .kebab-dot { width: 4px; height: 4px; background: white; border-radius: 50%; margin: 3px 0; }
+        .dropdown { position: absolute; right: 0; top: 40px; background: #111; border: 1px solid #333; border-radius: 12px; width: 180px; z-index: 100; display: none; overflow: hidden; }
+        .dropdown div { padding: 12px; font-size: 0.85rem; transition: 0.2s; text-align: left; }
+        .dropdown div:hover { background: var(--orange); color: white; }
 
         #vault-ui { opacity: 0; filter: blur(30px); transition: 1.2s; padding: 40px 8%; }
         .unlocked { opacity: 1 !important; filter: blur(0) !important; }
@@ -49,144 +44,184 @@
 <body>
 
     <div id="auth-system">
-        <!-- LOGIN PRINCIPAL -->
+        <!-- LOGIN -->
         <div id="view-start" class="auth-card">
             <h2 style="font-family:'Lilita One'; font-size: 2.8rem; color: var(--orange);">IDENTITY</h2>
             <input type="text" id="id-input" placeholder="Username or Email">
-            <button class="btn-action" onclick="goToPassword()">CONTINUE</button>
-            <div style="margin: 20px 0; color: #333;">OR</div>
+            <button class="btn-action" onclick="checkUserExists()">CONTINUE</button>
             <div id="g_id_onload" data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com" data-callback="handleGoogle"></div>
-            <div class="g_id_signin" data-type="standard" data-theme="filled_black"></div>
-            <span class="link" onclick="switchView('view-reg')">Register Account</span>
+            <div class="g_id_signin" style="margin-top:15px" data-type="standard" data-theme="filled_black"></div>
+            <span class="link" onclick="switchView('view-reg')">Register New Survivor</span>
         </div>
 
-        <!-- PASSWORD -->
+        <!-- CONTRASEÑA LOGIN -->
         <div id="view-pass" class="auth-card hidden">
-            <h2 style="font-family:'Lilita One'; color: var(--cyan);">PASSWORD</h2>
+            <h2 style="font-family:'Lilita One'; color: var(--cyan);">SECURITY</h2>
             <p id="target-display" style="color: #666; margin-bottom: 10px;"></p>
-            <input type="password" id="pass-field" placeholder="••••••••">
-            <button class="btn-action" onclick="finalizeLogin()">ENTER VAULT</button>
+            <input type="password" id="pass-field" placeholder="Password">
+            <button class="btn-action" onclick="validatePassword()">LOGIN</button>
+            <span class="link" onclick="switchView('view-recover')">Forgot Password?</span>
             <span class="link" onclick="switchView('view-start')">Back</span>
         </div>
 
-        <!-- REGISTRO CON VERIFICACIÓN DINÁMICA -->
+        <!-- REGISTRO -->
         <div id="view-reg" class="auth-card hidden">
             <h2 style="font-family:'Lilita One';">SIGN UP</h2>
             <div id="reg-form">
-                <input type="text" id="reg-user" placeholder="Username">
-                <input type="email" id="reg-mail" placeholder="Email">
+                <input type="text" id="reg-user" placeholder="Create Username">
+                <input type="email" id="reg-mail" placeholder="Email Address">
+                <input type="password" id="reg-pass" placeholder="Create Password">
                 <button class="btn-action" id="btn-send-reg" onclick="sendAuthEmail('reg-mail', 'Registration', 'reg-verify', 'btn-send-reg')">SEND CODE</button>
             </div>
-            
-            <!-- Este campo aparece solo después de enviar el correo -->
             <div id="reg-verify" class="hidden">
-                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">Enter the 6-digit code sent to your email</p>
-                <input type="text" id="reg-otp" class="otp-input" placeholder="000000" maxlength="6">
-                <button class="btn-action" style="background: var(--cyan); color: #000;" onclick="verifyOTP('reg-otp', 'reg-user')">VERIFY & CREATE</button>
+                <input type="text" id="reg-otp" placeholder="Enter Code" maxlength="6" style="border: 1px solid var(--cyan)">
+                <button class="btn-action" onclick="verifyAndSaveUser()">COMPLETE REGISTRATION</button>
             </div>
-            <span class="link" onclick="switchView('view-start')">Back to Login</span>
+            <span class="link" onclick="switchView('view-start')">Back</span>
+        </div>
+
+        <!-- RECUPERACIÓN -->
+        <div id="view-recover" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One'; color: var(--orange);">RECOVERY</h2>
+            <input type="email" id="rec-mail" placeholder="Registered Email">
+            <button class="btn-action" id="btn-send-rec" onclick="sendAuthEmail('rec-mail', 'Recovery', 'rec-verify', 'btn-send-rec')">SEND RESET CODE</button>
+            
+            <div id="rec-verify" class="hidden">
+                <input type="text" id="rec-otp" placeholder="Enter Code" maxlength="6">
+                <input type="password" id="new-pass" placeholder="New Password">
+                <button class="btn-action" onclick="updatePassword()">RESET PASSWORD</button>
+            </div>
+            <span class="link" onclick="switchView('view-start')">Cancel</span>
         </div>
     </div>
 
+    <!-- TIENDA / VAULT -->
     <main id="vault-ui">
-        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--orange); padding-bottom: 20px;">
-            <h1 style="font-family:'Lilita One';">THE VAULT</h1>
-            <div style="display:flex; align-items:center; gap:20px;">
-                <span id="user-display" style="font-family:'Lilita One'; color: var(--cyan);"></span>
-                <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#fff; padding:5px 15px; border-radius:10px; cursor:pointer;">LOGOUT</button>
-            </div>
-        </header>
-
-        <div style="margin-top: 50px; text-align: center;">
-            <div style="background: #0a0a0a; padding: 35px; border-radius: 30px; border: 1px solid #222; display: inline-block; width: 350px;">
-                <h3 style="font-family:'Lilita One'; font-size: 1.8rem;">SHADOW HOPE</h3>
-                <div id="action-area" style="margin-top: 20px;">
-                    <button class="btn-action" onclick="claimGame()">CLAIM ACCESS</button>
+        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; padding-bottom: 20px;">
+            <h1 style="font-family:'Lilita One'; color: var(--orange);">THE VAULT</h1>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div style="text-align:right">
+                    <span id="user-display" style="font-family:'Lilita One'; color: var(--cyan); display:block"></span>
+                </div>
+                
+                <!-- MENU KEBAB -->
+                <div class="kebab-menu" onclick="toggleKebab()">
+                    <div class="kebab-dot"></div><div class="kebab-dot"></div><div class="kebab-dot"></div>
+                    <div id="kebab-dropdown" class="dropdown">
+                        <div onclick="alert('Device ID: '+deviceFingerprint)">Hardware Info</div>
+                        <div onclick="switchView('view-recover'); document.getElementById('auth-system').style.display='flex'">Change Password</div>
+                        <div style="color:red" onclick="location.reload()">Logout</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
+        <!-- Resto de la tienda -->
     </main>
 
     <script>
-        (function() { 
-            emailjs.init("3XgvL4XF6IdEb6r-W"); 
-        })();
+        (function() { emailjs.init("3XgvL4XF6IdEb6r-W"); })();
 
         let generatedOTP = null;
-        const deviceFingerprint = btoa(navigator.userAgent + screen.width).substring(10, 25);
+        let currentUserData = null;
+        const deviceFingerprint = btoa(navigator.userAgent + screen.width).substring(10, 20);
 
         function switchView(id) {
             document.querySelectorAll('.auth-card').forEach(c => c.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
 
-        function goToPassword() {
-            const val = document.getElementById('id-input').value;
-            if(!val) return alert("Enter credentials");
-            document.getElementById('target-display').innerText = val;
-            switchView('view-pass');
+        function toggleKebab() {
+            const d = document.getElementById('kebab-dropdown');
+            d.style.display = (d.style.display === 'block') ? 'none' : 'block';
         }
 
-        // --- ENVÍO DE CORREO Y CAMBIO DE INTERFAZ ---
+        // --- LÓGICA DE REGISTRO ---
         function sendAuthEmail(emailId, type, verifyDivId, btnId) {
             const email = document.getElementById(emailId).value;
             if(!email) return alert("Email required");
-
+            
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-
-            const params = {
-                to_email: email,
-                message_type: type,
-                verification_code: generatedOTP // Esto debe estar en tu Template de EmailJS
-            };
-
             const btn = document.getElementById(btnId);
             btn.innerText = "SENDING...";
-            btn.disabled = true;
 
-            emailjs.send("service_n5upbn5", "template_9zecuia", params)
-                .then(() => {
-                    // Ocultar botón de envío y mostrar campo de verificación
-                    btn.classList.add('hidden');
-                    document.getElementById(verifyDivId).classList.remove('hidden');
-                }, (err) => {
-                    alert("Error: " + JSON.stringify(err));
-                    btn.disabled = false;
-                    btn.innerText = "RETRY SEND";
-                });
+            emailjs.send("service_n5upbn5", "template_9zecuia", {
+                to_email: email,
+                message_type: type,
+                verification_code: generatedOTP
+            }).then(() => {
+                document.getElementById(verifyDivId).classList.remove('hidden');
+                btn.classList.add('hidden');
+            });
         }
 
-        // --- VERIFICACIÓN DEL CÓDIGO ---
-        function verifyOTP(otpInputId, usernameId) {
-            const userOTP = document.getElementById(otpInputId).value;
-            if(userOTP === generatedOTP) {
-                alert("IDENTITY VERIFIED");
-                const userName = document.getElementById(usernameId).value || "New Survivor";
-                unlockVault(userName);
+        function verifyAndSaveUser() {
+            const otp = document.getElementById('reg-otp').value;
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            const mail = document.getElementById('reg-mail').value;
+
+            if(otp !== generatedOTP) return alert("Wrong Code");
+            if(!user || !pass) return alert("Fill all fields");
+
+            const userData = { user, pass, mail };
+            localStorage.setItem('user_' + user.toLowerCase(), JSON.stringify(userData));
+            localStorage.setItem('user_' + mail.toLowerCase(), JSON.stringify(userData));
+
+            alert("Account Created!");
+            unlockVault(user);
+        }
+
+        // --- LÓGICA DE LOGIN ---
+        function checkUserExists() {
+            const id = document.getElementById('id-input').value.toLowerCase();
+            const stored = localStorage.getItem('user_' + id);
+            
+            if(!stored) return alert("User not found. Please register.");
+            
+            currentUserData = JSON.parse(stored);
+            document.getElementById('target-display').innerText = id;
+            switchView('view-pass');
+        }
+
+        function validatePassword() {
+            const pass = document.getElementById('pass-field').value;
+            if(pass === currentUserData.pass) {
+                unlockVault(currentUserData.user);
             } else {
-                alert("INVALID CODE. Try again.");
+                alert("Incorrect Password");
             }
         }
 
-        function finalizeLogin() {
-            unlockVault(document.getElementById('id-input').value || "Survivor");
-        }
+        // --- RECUPERACIÓN ---
+        function updatePassword() {
+            const otp = document.getElementById('rec-otp').value;
+            const newPass = document.getElementById('new-pass').value;
+            const mail = document.getElementById('rec-mail').value.toLowerCase();
 
-        function handleGoogle(resp) {
-            const data = JSON.parse(atob(resp.credential.split('.')[1]));
-            unlockVault(data.given_name);
+            if(otp !== generatedOTP) return alert("Wrong Code");
+            
+            const stored = localStorage.getItem('user_' + mail);
+            if(!stored) return alert("Email not registered");
+
+            let data = JSON.parse(stored);
+            data.pass = newPass;
+            
+            localStorage.setItem('user_' + data.user.toLowerCase(), JSON.stringify(data));
+            localStorage.setItem('user_' + mail, JSON.stringify(data));
+
+            alert("Password Updated Successfully!");
+            location.reload();
         }
 
         function unlockVault(name) {
             document.getElementById('auth-system').style.display = 'none';
             document.getElementById('vault-ui').classList.add('unlocked');
             document.getElementById('user-display').innerText = name.toUpperCase();
-            document.body.style.overflow = 'auto';
         }
 
-        function claimGame() {
-            alert("LICENSE TIED TO THIS DEVICE.");
-            document.getElementById('action-area').innerHTML = `<span style="color:var(--cyan)">ACCESS GRANTED</span>`;
+        function handleGoogle(resp) {
+            const data = JSON.parse(atob(resp.credential.split('.')[1]));
+            unlockVault(data.given_name);
         }
     </script>
 </body>
