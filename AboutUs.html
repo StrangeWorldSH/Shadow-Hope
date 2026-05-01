@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>About Us | Strange World Studio</title>
+    <title>About Us | Strange World</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
     
@@ -28,7 +28,7 @@
             min-height: 100vh;
         }
 
-        /* --- ASH CANVAS BACKGROUND --- */
+        /* --- BACKGROUND --- */
         #ash-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
@@ -121,14 +121,9 @@
             background: #000; border-top: 1px solid #111;
         }
         .footer-logo { font-family: 'Lilita One', cursive; font-size: 1.5rem; color: #1a1a1a; letter-spacing: 3px; }
-
-        audio { display: none; }
     </style>
 </head>
 <body>
-
-    <audio id="sfx_select"><source src="select.mp3" type="audio/mpeg"></audio>
-    <audio id="sfx_press"><source src="press.mp3" type="audio/mpeg"></audio>
 
     <div class="grain"></div>
     <canvas id="ash-canvas"></canvas>
@@ -136,10 +131,10 @@
     <header>
         <div class="logo-text">STRANGE WORLD</div>
         <nav>
-            <a href="../index.html" class="nav-link active sfx-hover">Home</a>
-            <a href="../AboutUs.html" class="nav-link sfx-hover">About Us</a>
-            <a href="../Community.html" class="nav-link sfx-hover">Community</a>
-            <a href="../Store.html" class="nav-link sfx-hover">Store</a>
+            <a href="index.html">Home</a>
+            <a href="About Us.html" class="active">About Us</a>
+            <a href="Community.html">Community</a>
+            <a href="Store.html">Store</a>
         </nav>
     </header>
 
@@ -159,34 +154,33 @@
         </section>
 
         <div class="stats-grid">
-            <div class="stat-card sfx-hover">
+            <div class="stat-card">
                 <h3>ADAPTIVE AI</h3>
-                <p>Our entities don't just follow scripts. They react to your heart rate, your movement, and your panic levels.</p>
+                <p>Our entities don't just follow scripts. They react to your movement and panic levels.</p>
             </div>
-            <div class="stat-card sfx-hover">
+            <div class="stat-card">
                 <h3>SONIC DREAD</h3>
-                <p>We use binaural audio recording to ensure that every floorboard creak feels like it's happening right behind your chair.</p>
+                <p>Every floorboard creak feels like it's happening right behind your chair.</p>
             </div>
-            <div class="stat-card sfx-hover">
+            <div class="stat-card">
                 <h3>TRUE INDIE</h3>
-                <p>100% self-funded. 100% creative freedom. We answer only to the shadows and our community.</p>
+                <p>100% self-funded. 100% creative freedom. We answer only to the shadows.</p>
             </div>
         </div>
 
         <section class="story-block" style="margin-top: 50px;">
             <h2>THE PHILOSOPHY</h2>
             <p>
-                At Strange World, we believe horror is a conversation between the developer and the player's subconscious. Our "Void Engine" is designed to be unpredictable, ensuring that no two walkthroughs are ever truly identical.
+                At Strange World, we believe horror is a conversation between the developer and the player's subconscious. Our "Void Engine" is designed to be unpredictable.
             </p>
             <p>
-                When you play a Strange World title, you aren't just playing a game—you are entering a simulated nightmare where the rules are constantly shifting.
+                When you play a Strange World title, you aren't just playing a game—you are entering a simulated nightmare.
             </p>
         </section>
     </main>
 
     <footer>
         <div class="footer-logo">STRANGE WORLD STUDIO // 2026</div>
-        <p style="color: #0a0a0a; margin-top: 10px; font-weight: bold; letter-spacing: 5px; font-size: 0.8rem;">DONT LOOK BACK</p>
     </footer>
 
     <script>
@@ -203,9 +197,7 @@
 
         let particles = [];
         class Particle {
-            constructor() {
-                this.init();
-            }
+            constructor() { this.init(); }
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -217,9 +209,7 @@
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
-                    this.init();
-                }
+                if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) this.init();
             }
             draw() {
                 ctx.fillStyle = `rgba(255, 69, 0, ${this.opacity})`;
@@ -237,16 +227,6 @@
             requestAnimationFrame(animate);
         }
         animate();
-
-        // --- AUDIO ENGINE ---
-        const audioS = document.getElementById('sfx_select');
-        const audioP = document.getElementById('sfx_press');
-        function playS(a) { a.currentTime = 0; a.play().catch(()=>{}); }
-
-        document.querySelectorAll('.sfx-hover').forEach(el => {
-            el.addEventListener('mouseenter', () => playS(audioS));
-            el.addEventListener('mousedown', () => playS(audioP));
-        });
     </script>
 </body>
 </html>
