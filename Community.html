@@ -3,21 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Community Hub | Strange World</title>
+    <title>Community | Strange World</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
     
-    <!-- Fonts & Icons -->
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         :root {
             --orange: #ff4500;
             --cyan: #00e5ff;
             --dark: #020202;
-            --panel: rgba(15, 15, 15, 0.95);
-            --input-bg: #111;
+            --card: #0a0a0a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
@@ -27,12 +25,7 @@
             color: #ffffff;
             font-family: 'Rubik', sans-serif;
             overflow-x: hidden;
-        }
-
-        /* --- GLITCH BACKGROUND --- */
-        #glitch-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; opacity: 0.15;
+            min-height: 100vh;
         }
 
         /* --- NAVIGATION --- */
@@ -42,12 +35,7 @@
             position: sticky; top: 0; z-index: 1000;
         }
 
-        .logo-text { 
-            font-family: 'Lilita One', cursive; 
-            font-size: 1.8rem; 
-            text-shadow: 2px 2px 0 var(--orange);
-            letter-spacing: 1px;
-        }
+        .logo-text { font-family: 'Lilita One', cursive; font-size: 2rem; text-shadow: 3px 3px 0 var(--orange); }
 
         nav a {
             font-family: 'Lilita One', cursive; color: #fff; text-decoration: none;
@@ -55,209 +43,127 @@
         }
         nav a:hover, .active { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
 
-        /* --- CONTAINER --- */
-        .container { padding: 60px 8%; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+        /* --- COMMUNITY CONTENT --- */
+        .container { padding: 60px 8%; max-width: 900px; margin: 0 auto; text-align: center; }
 
-        .section-header { text-align: center; margin-bottom: 60px; }
-        .section-header h1 { font-family: 'Lilita One', cursive; font-size: clamp(3rem, 8vw, 5rem); text-shadow: 6px 6px 0 var(--orange); }
-
-        /* --- SOCIAL GRID --- */
-        .social-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px; margin-bottom: 80px;
+        .comm-header h1 { 
+            font-family: 'Lilita One', cursive; font-size: 4rem; 
+            text-shadow: 6px 6px 0 var(--orange); margin-bottom: 10px;
         }
 
-        .social-btn {
-            background: var(--panel); border: 2px solid #222;
-            padding: 25px 15px; border-radius: 20px; text-align: center;
-            text-decoration: none; color: white; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
-
-        .social-btn:hover {
-            transform: translateY(-8px); border-color: var(--cyan);
-            box-shadow: 0 10px 20px rgba(0, 229, 255, 0.1);
-        }
-
-        .social-btn i { font-size: 2.2rem; color: var(--orange); }
-        .social-btn span { font-family: 'Lilita One', cursive; font-size: 1.1rem; letter-spacing: 1px; }
-
-        /* --- COMMENTS SECTION --- */
-        .comments-section {
-            background: var(--panel); border: 2px solid #333;
+        /* Registro de Usuario */
+        .user-gate {
+            background: var(--card); border: 2px solid #1a1a1a;
             padding: 40px; border-radius: 30px; margin-top: 50px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .comments-section h2 { font-family: 'Lilita One', cursive; font-size: 2.2rem; margin-bottom: 30px; color: var(--cyan); }
+        .user-gate h2 { font-family: 'Lilita One'; font-size: 2rem; color: var(--cyan); margin-bottom: 20px; }
 
-        .comment-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
-        
-        .comment-form input, .comment-form textarea {
-            background: var(--input-bg); border: 2px solid #333;
-            padding: 18px; border-radius: 12px; color: white;
-            font-family: 'Rubik', sans-serif; font-size: 1rem;
-            outline: none; transition: 0.3s;
+        input[type="text"] {
+            width: 100%; max-width: 400px; padding: 15px; border-radius: 10px;
+            border: 2px solid #222; background: #000; color: white;
+            font-family: 'Lilita One'; font-size: 1.2rem; text-align: center;
+            margin-bottom: 20px; outline: none; transition: 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 69, 0, 0.3); }
+
+        .save-btn {
+            display: inline-block; padding: 15px 40px; background: var(--orange);
+            color: white; border: none; border-radius: 10px; font-family: 'Lilita One';
+            font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 5px 0 #9e2b00;
+        }
+        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #9e2b00; }
+        .save-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #9e2b00; }
+
+        /* Panel de Bienvenida */
+        #welcomePanel { display: none; margin-top: 50px; }
+        .user-badge {
+            font-size: 2.5rem; font-family: 'Lilita One'; color: var(--orange);
+            text-transform: uppercase; letter-spacing: 2px;
         }
 
-        .comment-form input:focus, .comment-form textarea:focus { border-color: var(--orange); }
-
-        .submit-btn {
-            background: var(--orange); color: white; border: none;
-            padding: 15px 40px; border-radius: 10px; font-family: 'Lilita One', cursive;
-            font-size: 1.3rem; cursor: pointer; align-self: flex-start;
-            transition: 0.2s; box-shadow: 0 5px 0 #9e2b00;
+        .logout-link {
+            display: block; margin-top: 20px; color: #444; font-size: 0.8rem;
+            text-decoration: underline; cursor: pointer;
         }
-        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 #9e2b00; }
-        .submit-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #9e2b00; }
 
-        /* Comment List */
-        .comment-list { border-top: 1px solid #333; padding-top: 30px; max-height: 600px; overflow-y: auto; }
-        .comment-item { margin-bottom: 25px; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 15px; border-left: 4px solid var(--orange); }
-        .comment-item strong { color: var(--cyan); font-size: 1.1rem; font-family: 'Lilita One'; }
-        .comment-item p { color: #ccc; margin-top: 8px; line-height: 1.5; }
-        .comment-date { font-size: 0.7rem; color: #555; display: block; margin-top: 10px; }
-
-        footer { padding: 60px; text-align: center; font-family: 'Lilita One'; color: #1a1a1a; letter-spacing: 5px; font-size: 0.9rem; }
-
-        /* Custom Scrollbar */
-        .comment-list::-webkit-scrollbar { width: 5px; }
-        .comment-list::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 10px; }
+        footer { padding: 40px; text-align: center; opacity: 0.2; font-family: 'Lilita One'; margin-top: 100px; }
     </style>
 </head>
 <body>
 
-    <canvas id="glitch-canvas"></canvas>
-
     <header>
         <div class="logo-text">STRANGE WORLD</div>
         <nav>
-            <a href="../index.html" class="nav-link active sfx-hover">Home</a>
-            <a href="../AboutUs.html" class="nav-link sfx-hover">About Us</a>
-            <a href="../Community.html" class="nav-link sfx-hover">Community</a>
-            <a href="../Store.html" class="nav-link sfx-hover">Store</a>
+            <a href="index.html">Home</a>
+            <a href="About Us.html">About Us</a>
+            <a href="Community.html" class="active">Community</a>
+            <a href="Store.html">Store</a>
         </nav>
     </header>
 
     <main class="container">
-        <section class="section-header">
-            <h1>COMMUNITY HUB</h1>
-            <p style="color: var(--cyan); font-weight: bold; letter-spacing: 4px; font-size: 0.8rem;">JOIN THE SURVIVOR NETWORK</p>
+        <section class="comm-header">
+            <h1>SURVIVOR HUB</h1>
+            <p style="color: #444; font-weight: bold; letter-spacing: 2px;">JOIN THE COLLECTIVE CONSCIOUSNESS</p>
         </section>
 
-        <!-- Social Media Grid -->
-        <div class="social-grid">
-            <a href="https://discord.gg/3hxGxnva" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-discord"></i>
-                <span>DISCORD</span>
-            </a>
-            <a href="https://whatsapp.com/channel/0029VbC8yGp90x2mdvk8LQ0M" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-whatsapp"></i>
-                <span>WHATSAPP</span>
-            </a>
-            <a href="https://www.youtube.com/@StrangeWorldSH" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-youtube"></i>
-                <span>YOUTUBE</span>
-            </a>
-            <a href="https://x.com/StrangeWorldSH" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-x-twitter"></i>
-                <span>X / TWITTER</span>
-            </a>
-            <a href="https://www.instagram.com/shadowhopesh/" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-instagram"></i>
-                <span>INSTAGRAM</span>
-            </a>
-            <a href="https://www.tiktok.com/@strangeworldsh" target="_blank" class="social-btn sfx-hover">
-                <i class="fab fa-tiktok"></i>
-                <span>TIKTOK</span>
-            </a>
+        <!-- Sección de Ingreso -->
+        <div id="loginGate" class="user-gate">
+            <h2>WHO ARE YOU?</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.9rem;">No passwords. No tracking. Only your name remains.</p>
+            <input type="text" id="usernameInput" placeholder="ENTER USERNAME..." maxlength="15">
+            <br>
+            <button class="save-btn" onclick="saveUser()">REGISTER IDENTITY</button>
         </div>
 
-        <!-- Feedback Section -->
-        <section class="comments-section">
-            <h2>SURVIVOR FEEDBACK</h2>
-            <form class="comment-form" id="commentForm">
-                <input type="text" placeholder="Your Survivor Name..." required id="username" maxlength="20">
-                <textarea rows="4" placeholder="Transmit your message..." required id="message" maxlength="300"></textarea>
-                <button type="submit" class="submit-btn">POST LOG</button>
-            </form>
-
-            <div class="comment-list" id="commentList">
-                <!-- Static Admin Comment -->
-                <div class="comment-item">
-                    <strong>Strange World Dev</strong>
-                    <p>Welcome to the official hub. Leave your theories and feedback below!</p>
-                    <span class="comment-date">SYSTEM OVERRIDE // 2026</span>
-                </div>
-            </div>
-        </section>
+        <!-- Sección de Bienvenida -->
+        <div id="welcomePanel">
+            <p style="color: #666; font-size: 1.2rem; margin-bottom: 10px;">WELCOME BACK, SURVIVOR</p>
+            <div id="displayName" class="user-badge"></div>
+            <p style="margin-top: 30px; color: var(--cyan); line-height: 1.6;">
+                Your presence has been recorded in the void. <br>
+                Stay tuned for community challenges and exclusive lore.
+            </p>
+            <span class="logout-link" onclick="clearUser()">Erase Identity</span>
+        </div>
     </main>
 
-    <footer>STRANGE WORLD // 2026 // ESTABLISHING CONNECTION</footer>
+    <footer>STRANGE WORLD STUDIO // 2026</footer>
 
     <script>
-        // --- GLITCH CANVAS ---
-        const canvas = document.getElementById('glitch-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        function drawGlitch() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            if(Math.random() > 0.95) {
-                ctx.strokeStyle = Math.random() > 0.5 ? '#ff4500' : '#00e5ff';
-                ctx.lineWidth = Math.random() * 2;
-                const y = Math.random() * canvas.height;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
+        // Al cargar la página, verificamos si ya existe un usuario
+        window.onload = function() {
+            const savedUser = localStorage.getItem('sw_username');
+            if (savedUser) {
+                showWelcome(savedUser);
             }
-            requestAnimationFrame(drawGlitch);
-        }
-        drawGlitch();
-
-        // --- LOCAL STORAGE COMMENT SYSTEM ---
-        const form = document.getElementById('commentForm');
-        const list = document.getElementById('commentList');
-
-        // Load existing comments
-        const savedComments = JSON.parse(localStorage.getItem('sw_comments')) || [];
-        savedComments.forEach(c => addCommentToDOM(c.user, c.msg, c.date));
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const user = document.getElementById('username').value;
-            const msg = document.getElementById('message').value;
-            const date = new Date().toLocaleString();
-
-            const commentData = { user, msg, date };
-            
-            // Save to LocalStorage
-            savedComments.unshift(commentData);
-            localStorage.setItem('sw_comments', JSON.stringify(savedComments));
-
-            addCommentToDOM(user, msg, date);
-            form.reset();
-        });
-
-        function addCommentToDOM(user, msg, date) {
-            const newComment = document.createElement('div');
-            newComment.className = 'comment-item';
-            newComment.innerHTML = `
-                <strong>${user}</strong>
-                <p>${msg}</p>
-                <span class="comment-date">${date}</span>
-            `;
-            list.insertBefore(newComment, list.children[1]); // Post after admin message
-        }
-
-        window.onresize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
         };
+
+        function saveUser() {
+            const input = document.getElementById('usernameInput');
+            const name = input.value.trim();
+
+            if (name.length >= 3) {
+                localStorage.setItem('sw_username', name);
+                showWelcome(name);
+            } else {
+                alert("Identity too short. Use at least 3 characters.");
+            }
+        }
+
+        function showWelcome(name) {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('welcomePanel').style.display = 'block';
+            document.getElementById('displayName').innerText = name;
+        }
+
+        function clearUser() {
+            localStorage.removeItem('sw_username');
+            location.reload(); // Recarga para volver al inicio
+        }
     </script>
 </body>
 </html>
