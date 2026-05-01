@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Strange World | Identity</title>
+    
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; --gray: #111; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        body { background-color: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; overflow: hidden; }
+
+        #auth-system {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+        }
+        .auth-card { 
+            width: 440px; padding: 40px; background: #080808; 
+            border: 2px solid var(--orange); border-radius: 35px; 
+            text-align: center;
+        }
+        .hidden { display: none !important; }
+        
+        input { 
+            width: 100%; padding: 15px; margin: 10px 0; background: var(--gray); 
+            border: 1px solid #333; color: white; border-radius: 12px; 
+            outline: none; text-align: center; font-family: 'Rubik';
+        }
+
+        .btn-action { 
+            width: 100%; padding: 16px; background: var(--orange); border: none; 
+            color: white; font-family: 'Lilita One'; font-size: 1.5rem; 
+            border-radius: 12px; transition: 0.3s; margin-top: 10px; cursor: pointer; 
+        }
+        .btn-action:hover { transform: scale(1.02); filter: brightness(1.2); }
+        
+        .link-container { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .link { color: var(--cyan); cursor: pointer; font-size: 0.9rem; text-decoration: none; font-family: 'Lilita One'; letter-spacing: 1px; }
+        .link:hover { text-decoration: underline; }
+
+        /* Kebab Styles */
+        .kebab-menu { position: relative; cursor: pointer; padding: 10px; }
+        .kebab-dot { width: 5px; height: 5px; background: white; border-radius: 50%; margin: 4px 0; }
+        .dropdown { 
+            position: absolute; right: 0; top: 50px; background: #050505; 
+            border: 2px solid var(--orange); border-radius: 15px; width: 220px; 
+            z-index: 1000; display: none; overflow: hidden;
+        }
+        .dropdown a { display: block; padding: 15px 20px; font-family: 'Lilita One'; color: #eee; text-decoration: none; }
+        .dropdown a:hover { background: var(--orange); color: white; }
+
+        #vault-ui { opacity: 0; filter: blur(20px); transition: 1s; padding: 40px; }
+        .unlocked { opacity: 1 !important; filter: blur(0) !important; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-system">
+        <!-- VISTA INICIAL -->
+        <div id="view-start" class="auth-card">
+            <h1 style="font-family:'Lilita One'; font-size: 3rem; color: var(--orange); margin-bottom: 25px;">IDENTITY</h1>
+            <input type="text" id="id-input" placeholder="Username or Email">
+            <button class="btn-action" onclick="checkUserExists()">CONTINUE</button>
+            <p style="margin: 20px 0; color: #444; font-size: 0.8rem;">OR</p>
+            <div id="g_id_onload" data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com" data-callback="handleGoogle"></div>
+            <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-width="360"></div>
+            
+            <div class="link-container">
+                <span class="link" onclick="switchView('view-reg')">REGISTER</span>
+                <span class="link" style="color: #666;" onclick="switchView('view-recover')">FORGOT?</span>
+            </div>
+        </div>
+
+        <!-- VISTA PASSWORD -->
+        <div id="view-pass" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One'; color: var(--cyan); margin-bottom: 10px;">ACCESS KEY</h2>
+            <p id="target-display" style="color: #ff4500; margin-bottom: 15px;"></p>
+            <input type="password" id="pass-field" placeholder="Enter Password">
+            <button class="btn-action" onclick="validatePassword()">VERIFY</button>
+            <div class="link-container">
+                <span class="link" onclick="switchView('view-start')">BACK</span>
+                <span class="link" onclick="switchView('view-recover')">RECOVER</span>
+            </div>
+        </div>
+
+        <!-- VISTA REGISTRO -->
+        <div id="view-reg" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One'; margin-bottom: 20px;">NEW SURVIVOR</h2>
+            <div id="reg-form">
+                <input type="text" id="reg-user" placeholder="Username">
+                <input type="email" id="reg-mail" placeholder="Email">
+                <input type="password" id="reg-pass" placeholder="Password">
+                <button class="btn-action" id="btn-send-reg" onclick="sendAuthEmail('reg-mail', 'Registration', 'reg-verify', 'btn-send-reg')">SEND CODE</button>
+            </div>
+            <div id="reg-verify" class="hidden">
+                <input type="text" id="reg-otp" placeholder="000000" maxlength="6">
+                <button class="btn-action" onclick="verifyAndSaveUser()">FINISH</button>
+            </div>
+            <span class="link" style="display:block; margin-top:20px;" onclick="switchView('view-start')">CANCEL</span>
+        </div>
+
+        <!-- VISTA RECUPERACIÓN -->
+        <div id="view-recover" class="auth-card hidden">
+            <h2 style="font-family:'Lilita One'; color: var(--orange); margin-bottom: 20px;">RECOVERY</h2>
+            <input type="email" id="rec-mail" placeholder="Registered Email">
+            <button class="btn-action" id="btn-send-rec" onclick="sendAuthEmail('rec-mail', 'Recovery', 'rec-verify', 'btn-send-rec')">SEND CODE</button>
+            
+            <div id="rec-verify" class="hidden">
+                <input type="text" id="rec-otp" placeholder="Code" maxlength="6">
+                <input type="password" id="new-pass" placeholder="New Password">
+                <button class="btn-action" onclick="updatePassword()">RESET PASSWORD</button>
+            </div>
+            <span class="link" style="display:block; margin-top:20px;" onclick="switchView('view-start')">RETURN</span>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE -->
+    <main id="vault-ui">
+        <header style="display:flex; justify-content: space-between; align-items:center;">
+            <h1 style="font-family:'Lilita One'; color:var(--orange)">SHADOW HOPE</h1>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <span id="user-display" style="font-family:'Lilita One'; color: var(--cyan);"></span>
+                <div class="kebab-menu" onclick="toggleKebab(event)">
+                    <div class="kebab-dot"></div><div class="kebab-dot"></div><div class="kebab-dot"></div>
+                    <div id="kebab-dropdown" class="dropdown">
+                        <a href="Home/index.html" class="nav-link active sfx-hover">HOME</a>
+                        <a href="About Us/About Us.html" class="nav-link sfx-hover">ABOUT US</a>
+                        <a href="Community/Community.html" class="nav-link sfx-hover">COMMUNITY</a>
+                        <a href="Store/Store.html" class="nav-link sfx-hover">STORE</a>
+                        <div style="padding:15px; color:red; font-family:'Lilita One'; cursor:pointer" onclick="location.reload()">LOGOUT</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </main>
+
+    <script>
+        (function() { emailjs.init("3XgvL4XF6IdEb6r-W"); })();
+
+        let generatedOTP = null;
+        let currentUserData = null;
+
+        function switchView(id) {
+            document.querySelectorAll('.auth-card').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function toggleKebab(e) {
+            e.stopPropagation();
+            const d = document.getElementById('kebab-dropdown');
+            d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.onclick = () => document.getElementById('kebab-dropdown').style.display = "none";
+
+        function sendAuthEmail(emailId, type, verifyDivId, btnId) {
+            const email = document.getElementById(emailId).value;
+            if(!email.includes('@')) return alert("Invalid Email");
+            
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById(btnId).innerText = "SENDING...";
+
+            emailjs.send("service_n5upbn5", "template_9zecuia", {
+                to_email: email, 
+                message_type: type, 
+                verification_code: generatedOTP
+            }).then(() => {
+                document.getElementById(verifyDivId).classList.remove('hidden');
+                document.getElementById(btnId).classList.add('hidden');
+            });
+        }
+
+        function verifyAndSaveUser() {
+            const otp = document.getElementById('reg-otp').value;
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            const mail = document.getElementById('reg-mail').value.toLowerCase();
+            if(otp !== generatedOTP) return alert("Wrong OTP");
+            
+            const data = { user, pass, mail };
+            localStorage.setItem('user_' + user.toLowerCase(), JSON.stringify(data));
+            localStorage.setItem('user_' + mail, JSON.stringify(data));
+            unlockVault(user);
+        }
+
+        function checkUserExists() {
+            const id = document.getElementById('id-input').value.toLowerCase().trim();
+            const stored = localStorage.getItem('user_' + id);
+            if(!stored) return alert("Not found. Please Register.");
+            currentUserData = JSON.parse(stored);
+            document.getElementById('target-display').innerText = id;
+            switchView('view-pass');
+        }
+
+        function validatePassword() {
+            if(document.getElementById('pass-field').value === currentUserData.pass) unlockVault(currentUserData.user);
+            else alert("Error: Access Key Mismatch");
+        }
+
+        function updatePassword() {
+            if(document.getElementById('rec-otp').value !== generatedOTP) return alert("Wrong OTP");
+            const mail = document.getElementById('rec-mail').value.toLowerCase();
+            let data = JSON.parse(localStorage.getItem('user_' + mail));
+            data.pass = document.getElementById('new-pass').value;
+            localStorage.setItem('user_' + data.user.toLowerCase(), JSON.stringify(data));
+            localStorage.setItem('user_' + mail, JSON.stringify(data));
+            alert("SUCCESS: Key Overwritten");
+            location.reload();
+        }
+
+        function unlockVault(name) {
+            document.getElementById('auth-system').style.display = 'none';
+            document.getElementById('vault-ui').classList.add('unlocked');
+            document.getElementById('user-display').innerText = name.toUpperCase();
+        }
+
+        function handleGoogle(resp) {
+            const data = JSON.parse(atob(resp.credential.split('.')[1]));
+            unlockVault(data.given_name);
+        }
+    </script>
+</body>
+</html>
